@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Generator</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --on-accent: #ffffff;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f0f12;
+        --card: #1c1c21;
+        --text: #f5f5f7;
+        --muted: #9a9aa2;
+        --accent: #818cf8;
+        --accent-hover: #a5b4fc;
+        --on-accent: #111827;
+        --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 70%;
+      background: var(--card);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .range {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .number {
+      font-size: clamp(8rem, 44vw, 14rem);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 50px;
+      font-variant-numeric: tabular-nums;
+      word-break: break-all;
+    }
+
+    .number.pop { animation: pop 0.3s ease; }
+    @keyframes pop {
+      0%   { transform: scale(0.85); opacity: 0.4; }
+      100% { transform: scale(1);    opacity: 1; }
+    }
+
+    button {
+      width: 100%;
+      padding: 24px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--on-accent);
+      background: var(--accent);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    button:hover  { background: var(--accent-hover); }
+    button:active { transform: scale(0.98); }
+
+
+    .hint {
+      margin: 20px 0 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .hint code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="number" id="number">–</div>
+    <button id="generate">Generate</button>
+  </main>
+
+  <script>
+    const DEFAULT_MAX = 100;
+
+    // Accepts ?max=500, or a bare ?500
+    function getMax() {
+      const params = new URLSearchParams(window.location.search);
+      let raw = params.get('max');
+      if (raw === null) {
+        const bare = window.location.search.slice(1);
+        if (/^\d+$/.test(bare)) raw = bare;
+      }
+      const n = parseInt(raw, 10);
+      return Number.isFinite(n) && n >= 1 ? n : DEFAULT_MAX;
+    }
+
+    const max = getMax();
+    const numberEl = document.getElementById('number');
+
+    function generate() {
+      const n = Math.floor(Math.random() * max) + 1;
+      numberEl.textContent = n.toLocaleString();
+      numberEl.classList.remove('pop');
+      void numberEl.offsetWidth; // restart animation
+      numberEl.classList.add('pop');
+    }
+
+    document.getElementById('generate').addEventListener('click', generate);
+    document.addEventListener('keydown', (e) => {
+      if ((e.code === 'Space' || e.code === 'Enter') && e.target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        generate();
+      }
+    });
+
+    generate();
+  </script>
+</body>
+</html>
